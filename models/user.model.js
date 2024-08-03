@@ -1,21 +1,23 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(
+const { Schema } = mongoose;
+
+const userSchema = new Schema(
   {
     fullName: {
       type: String,
-      required: [true, "Full Name is Required!"],
+      required: [true, "Full Name is required!"],
     },
     email: {
       type: String,
-      required: [true, "Email is Required!"],
+      required: [true, "Email is required!"],
       lowercase: true,
       unique: true,
     },
     password: {
       type: String,
-      required: [true, "Password is Required!"],
-      minlength: [6, "Password length should be greater than 6 character"],
+      required: [true, "Password is required!"],
+      minlength: [6, "Password length should be greater than 6 characters"],
       select: true,
     },
     profileImage: {

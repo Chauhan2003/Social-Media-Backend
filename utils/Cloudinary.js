@@ -13,7 +13,7 @@ const uploadOnCloudinary = async (localFilePath) => {
 
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "image",
-      public_id: "Social_Media/Profile_Image/",
+      public_id: "social_media/images/",
     });
 
     fs.unlinkSync(localFilePath);

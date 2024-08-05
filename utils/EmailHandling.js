@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import generateToken from "./TokenHandling.js";
+import { generateToken } from "./TokenHandling.js";
 import dotenv from "dotenv";
 dotenv.config();
 import { formatDistanceToNow, addMinutes } from "date-fns";

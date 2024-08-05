@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-async function generateToken(payload, expiresIn = "1h") {
+export const generateToken = async (payload, expiresIn = "1h") => {
   try {
     const token = await new Promise((resolve, reject) => {
       jwt.sign(
@@ -20,6 +20,21 @@ async function generateToken(payload, expiresIn = "1h") {
   } catch (error) {
     console.error("Error generating token:", error);
   }
-}
+};
 
-export default generateToken;
+export const verifyToken = async (token) => {
+  try {
+    const decoded = await new Promise((resolve, reject) => {
+      jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(decoded);
+        }
+      });
+    });
+    return decoded;
+  } catch (error) {
+    console.error("Error verifying token:", error);
+  }
+};

@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import { compareHash, hashString } from "../utils/BcryptHandling.js";
 import uploadOnCloudinary from "../utils/Cloudinary.js";
 import { sendVerificationEmail } from "../utils/EmailHandling.js";
-import generateToken from "../utils/TokenHandling.js";
+import { generateToken } from "../utils/TokenHandling.js";
 
 export const handleRegister = async (req, res, next) => {
   const { fullName, email, password } = req.body;
@@ -53,8 +53,10 @@ export const handleRegister = async (req, res, next) => {
       });
     }
   } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ message: "Server error!" });
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 
@@ -100,8 +102,10 @@ export const handleLogin = async (req, res, next) => {
       message: "User login successfully.",
     });
   } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ message: "Server error!" });
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 

@@ -1,18 +1,13 @@
 import User from "../models/user.model.js";
-import { hashString } from "../utils/BcryptHandling.js";
+import { compareHash, hashString } from "../utils/BcryptHandling.js";
 import uploadOnCloudinary from "../utils/Cloudinary.js";
+import generateToken from "../utils/TokenHandling.js";
 
 export const handleRegister = async (req, res, next) => {
   const { fullName, email, password } = req.body;
 
-  if (!fullName) {
-    return res.status(400).json({ message: "Full name is required." });
-  }
-  if (!email) {
-    return res.status(400).json({ message: "Email is required." });
-  }
-  if (!password) {
-    return res.status(400).json({ message: "Password is required." });
+  if (!fullName || !email || !password) {
+    return res.status(400).json({ message: "All fields are required." });
   }
 
   const profileImage = req.file;
@@ -47,6 +42,53 @@ export const handleRegister = async (req, res, next) => {
     res.status(201).json({
       message: "User registered successfully.",
       user,
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json({ message: "Server error!" });
+  }
+};
+
+export const handleLogin = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ message: "Email and password are required." });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      return res.status(400).json({ message: "Invalid email or password." });
+    }
+
+    const isMatch = await compareHash(password, existingUser.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid email or password." });
+    }
+
+    const token = generateToken(
+      {
+        fullName: existingUser.fullName,
+        email: existingUser.email,
+        profileImage: existingUser.profileImage,
+      },
+      "4d"
+    );
+
+    res.cookie("social-media-token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 4 * 24 * 60 * 60 * 1000,
+    });
+
+    const { password: _, ...user } = existingUser.toObject();
+    res.status(200).json({
+      user,
+      message: "User login successfully.",
     });
   } catch (err) {
     console.log(err.message);

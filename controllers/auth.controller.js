@@ -95,3 +95,8 @@ export const handleLogin = async (req, res, next) => {
     res.status(500).json({ message: "Server error!" });
   }
 };
+
+export const handleLogout = (req, res, next) => {
+  res.clearCookie("social-media-token");
+  res.status(200).json({ message: "User logged out successfully." });
+};

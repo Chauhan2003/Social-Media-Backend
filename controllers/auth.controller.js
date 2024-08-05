@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import { compareHash, hashString } from "../utils/BcryptHandling.js";
 import uploadOnCloudinary from "../utils/Cloudinary.js";
+import { sendVerificationEmail } from "../utils/EmailHandling.js";
 import generateToken from "../utils/TokenHandling.js";
 
 export const handleRegister = async (req, res, next) => {
@@ -36,13 +37,21 @@ export const handleRegister = async (req, res, next) => {
       email,
       password: hashedPassword,
     });
-    await createdUser.save();
 
-    const { password: _, ...user } = createdUser.toObject();
-    res.status(201).json({
-      message: "User registered successfully.",
-      user,
-    });
+    try {
+      await sendVerificationEmail(createdUser);
+      await createdUser.save();
+
+      res.status(201).json({
+        success: true,
+        message: "User registered. Verification email sent.",
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        message: "Verification email failed. Registration aborted.",
+      });
+    }
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ message: "Server error!" });

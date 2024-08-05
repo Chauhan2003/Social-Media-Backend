@@ -25,10 +25,13 @@ const userSchema = new Schema(
     },
     coverImage: {
       type: String,
+      default:
+        "https://www.detroitevictiondefense.net/wp-content/themes/miyazaki/assets/images/default-fallback-image.png",
     },
     about: {
       type: String,
       maxlength: 255,
+      default: "",
     },
     friends: [
       {

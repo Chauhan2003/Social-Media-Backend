@@ -17,7 +17,6 @@ async function generateToken(payload, expiresIn = "1h") {
     return token;
   } catch (error) {
     console.error("Error generating token:", error);
-    throw error;
   }
 }
 

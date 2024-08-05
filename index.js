@@ -3,6 +3,7 @@ import morgan from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
 import db_connection from "./database/index.js";
+import authRoute from "./routes/auth.route.js";
 dotenv.config();
 
 const app = express();
@@ -17,6 +18,9 @@ app.use(
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
+
+// routes
+app.use("/api/v1/auth", authRoute);
 
 // database connection
 db_connection();

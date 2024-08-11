@@ -6,11 +6,10 @@ export const verifyEmail = async (req, res) => {
   console.log(token);
 
   if (!token) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       message: "Provide user",
     });
-    return;
   }
 
   try {
@@ -26,14 +25,13 @@ export const verifyEmail = async (req, res) => {
     console.log(updatedUser);
 
     if (!updatedUser) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "User not found",
       });
-      return;
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Thank you, Email is verified",
     });

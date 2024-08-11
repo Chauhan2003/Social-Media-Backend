@@ -8,7 +8,10 @@ export const handleRegister = async (req, res, next) => {
   const { fullName, email, password } = req.body;
 
   if (!fullName || !email || !password) {
-    return res.status(400).json({ message: "All fields are required." });
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+    });
   }
 
   const profileImage = req.file;
@@ -16,9 +19,10 @@ export const handleRegister = async (req, res, next) => {
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "User with this email already exists." });
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists",
+      });
     }
 
     const hashedPassword = await hashString(password);
@@ -44,12 +48,13 @@ export const handleRegister = async (req, res, next) => {
 
       res.status(201).json({
         success: true,
-        message: "User registered. Verification email sent.",
+        message: "Verification your email address",
       });
     } catch (err) {
       console.log(err);
       res.status(500).json({
-        message: "Verification email failed. Registration aborted.",
+        success: false,
+        message: "Registration failed",
       });
     }
   } catch (err) {
@@ -64,20 +69,26 @@ export const handleLogin = async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ message: "Email and password are required." });
+    return res.status(400).json({
+      success: false,
+      message: "Email and password are required",
+    });
   }
 
   try {
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
-      return res.status(400).json({ message: "Invalid email or password." });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password",
+      });
     }
 
     const isMatch = await compareHash(password, existingUser.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password." });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email or password" });
     }
 
     const token = generateToken(
@@ -86,20 +97,27 @@ export const handleLogin = async (req, res, next) => {
         email: existingUser.email,
         profileImage: existingUser.profileImage,
       },
-      "4d"
+      "2d"
     );
 
     res.cookie("social-media-token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 4 * 24 * 60 * 60 * 1000,
+      maxAge: 2 * 24 * 60 * 60 * 1000,
     });
 
-    const { password: _, ...user } = existingUser.toObject();
+    const user = {
+      _id: existingUser._id,
+      fullName: existingUser.fullName,
+      email: existingUser.email,
+      profileImage: existingUser.profileImage,
+    };
+
     res.status(200).json({
+      success: true,
+      message: "User login successfully",
       user,
-      message: "User login successfully.",
     });
   } catch (err) {
     res.status(500).json({
@@ -111,5 +129,7 @@ export const handleLogin = async (req, res, next) => {
 
 export const handleLogout = (req, res, next) => {
   res.clearCookie("social-media-token");
-  res.status(200).json({ message: "User logged out successfully." });
+  res
+    .status(200)
+    .json({ success: true, message: "User logged out successfully" });
 };

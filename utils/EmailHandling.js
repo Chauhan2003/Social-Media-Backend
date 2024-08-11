@@ -2,7 +2,6 @@ import nodemailer from "nodemailer";
 import { generateToken } from "./TokenHandling.js";
 import dotenv from "dotenv";
 dotenv.config();
-import { formatDistanceToNow, addMinutes } from "date-fns";
 
 const { AUTH_EMAIL, AUTH_PASSWORD, APP_URL } = process.env;
 
@@ -16,13 +15,13 @@ const transporter = nodemailer.createTransport({
 
 export const sendVerificationEmail = async (user) => {
   const { _id, email, fullName } = user;
-  const token = await generateToken({
-    userId: _id,
-  });
-  const link = `${APP_URL}/verify/${token}`;
-  const expirationTime = formatDistanceToNow(addMinutes(new Date(), 30), {
-    addSuffix: true,
-  });
+  const token = await generateToken(
+    {
+      userId: _id,
+    },
+    "15m"
+  );
+  const link = `${APP_URL}/user/verify/${token}`;
 
   const mailOptions = {
     from: AUTH_EMAIL,
@@ -39,7 +38,7 @@ export const sendVerificationEmail = async (user) => {
           <a href="${link}" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
           <p>If the button above doesn't work, please copy and paste the following URL into your web browser:</p>
           <p><a href="${link}" style="color: #4CAF50;">${link}</a></p>
-          <p>This link will expire ${expirationTime}.</p>
+          <p>This link will expire 15min.</p>
           <p>Best regards,<br>Socail Media</p>
         </div>
       </div>
@@ -58,9 +57,6 @@ export const sendPasswordResetEmail = async (user) => {
     "15m"
   );
   const link = `${APP_URL}/reset-password/${token}`;
-  const expirationTime = formatDistanceToNow(addMinutes(new Date(), 15), {
-    addSuffix: true,
-  });
 
   const mailOptions = {
     from: AUTH_EMAIL,
@@ -77,7 +73,7 @@ export const sendPasswordResetEmail = async (user) => {
           <a href="${link}" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
           <p>If the button above doesn't work, please copy and paste the following URL into your web browser:</p>
           <p><a href="${link}" style="color: #4CAF50;">${link}</a></p>
-          <p>This link will expire ${expirationTime}.</p>
+          <p>This link will expire 15min.</p>
           <p>Best regards,<br>Social Media</p>
         </div>
       </div>
